@@ -19,13 +19,13 @@ Item {
         radius: 10
         color: {
             if(mouseArea.containsMouse)
-                return primary ? "#FF1654b7" : "#401654b7"
-            return primary ? "#CC1654b7" : "#001654b7"
+                return primaryBtn.primary ? "#FF1654b7" : "#401654b7"
+            return primaryBtn.primary ? "#CC1654b7" : "#001654b7"
         } 
         border.color: {
             if(mouseArea.containsMouse)
                 return "#1654b7"
-            return primary ? "#CC1654b7" : "#19222b"
+            return primaryBtn.primary ? "#CC1654b7" : "#19222b"
         } 
         border.width: 1
 
@@ -43,7 +43,7 @@ Item {
                 opacity: {
                     if(mouseArea.containsMouse)
                         return 1
-                    return primary ? 1 : 0.9
+                    return primaryBtn.primary ? 1 : 0.9
                 } 
                 visible: primaryBtn.icon !== ""
                 anchors.verticalCenter: parent.verticalCenter
@@ -57,7 +57,7 @@ Item {
                 color: {
                     if(mouseArea.containsMouse)
                         return "white"
-                    return primary ? "white" : "#80ffffff"
+                    return primaryBtn.primary ? "white" : "#80ffffff"
                 } 
                 anchors.verticalCenter: parent.verticalCenter
             }
