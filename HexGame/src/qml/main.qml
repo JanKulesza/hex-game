@@ -1,17 +1,16 @@
 import QtQuick 2.9
-import QtQuick.Window 2.2
+import QtQuick.Controls 2.2
+import QtQuick.Shapes
 
-Window {
+ApplicationWindow {
     visible: true
-    width: 640
-    height: 480
+    width: 1024
+    height: 768
     title: "HexGame"
-    Text {
+    color: "#060e17"
+    StackView {
+        id: stack
         anchors.fill: parent
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        font.bold: true
-        font.pointSize: 42
-        text: "Hello World!"
+        initialItem: MenuScreen {}
     }
 }

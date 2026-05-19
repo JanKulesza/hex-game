@@ -32,6 +32,10 @@ if(QT_VERSION VERSION_GREATER_EQUAL 6.2)
         RESOURCE_PREFIX "/qt/qml/"
         QML_FILES
             src/qml/main.qml
+            src/qml/MenuScreen.qml
+            src/qml/NewGameScreen.qml
+            src/qml/GameScreen.qml
+            src/qml/widgets/PrimaryBtn.qml
     )
 endif()
 
