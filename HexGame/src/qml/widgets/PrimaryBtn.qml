@@ -53,7 +53,7 @@ Item {
                 text: primaryBtn.text
                 font.pixelSize: 13
                 font.letterSpacing: 2
-                font.bold: true
+                font.weight: 600
                 color: {
                     if(mouseArea.containsMouse)
                         return "white"
