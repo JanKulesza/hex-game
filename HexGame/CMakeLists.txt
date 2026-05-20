@@ -36,6 +36,8 @@ if(QT_VERSION VERSION_GREATER_EQUAL 6.2)
             src/qml/NewGameScreen.qml
             src/qml/GameScreen.qml
             src/qml/widgets/PrimaryBtn.qml
+            src/qml/widgets/SecondaryBtn.qml
+            src/qml/widgets/CardSection.qml
     )
 endif()
 
