@@ -4,8 +4,8 @@ import QtQuick.Shapes
 
 ApplicationWindow {
     visible: true
-    width: 1024
-    height: 768
+    width: 512
+    height: 820
     title: "HexGame"
     color: "#060e17"
     StackView {
