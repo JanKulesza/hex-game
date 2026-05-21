@@ -39,6 +39,18 @@ if(QT_VERSION VERSION_GREATER_EQUAL 6.2)
             src/qml/widgets/SecondaryBtn.qml
             src/qml/widgets/CardSection.qml
     )
+    qt_add_resources(${PROJECT_NAME} "resources"
+        PREFIX "/"
+        FILES
+            resources/menuImage.png
+            resources/icon.ico
+    )
+endif()
+
+if(WIN32)
+    target_sources(${PROJECT_NAME} PRIVATE
+        resources/resources.rc
+    )
 endif()
 
 set_target_properties(${PROJECT_NAME}
