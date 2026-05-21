@@ -13,28 +13,12 @@ Item {
         spacing: 16
         anchors.margins: 16
         anchors.fill: parent
-        Item {
-            width: parent.width
-            height: 48
-
-            SecondaryBtn {
-                icon: "⬅️"
-                text: "Back"
-                w: 96
-                h: 48
-                anchors.left: parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                onClicked: stack.pop()
-            }
-
-            Text {
-                text: "New Game Settings"
-                color: "white"
-                font.pixelSize: 28
-                anchors.centerIn: parent    
-            }
+        Text {
+            text: "New Game Settings"
+            color: "white"
+            font.pixelSize: 28
+            anchors.horizontalCenter: parent.horizontalCenter
         }
-
         CardSection {
             label: "BOARD SIZE"
             Row {
@@ -122,6 +106,19 @@ Item {
                     onClicked: whoStarts = "AI"
                 }
             }
+        }
+        PrimaryBtn {
+            primary: true
+            icon: "🎲"
+            text: "START GAME"
+            width: parent.width
+            onClicked: stack.push(Qt.resolvedUrl("GameScreen.qml"))
+        }
+        SecondaryBtn {
+            text: "Back"
+            h: 56
+            width: parent.width
+            onClicked: stack.pop()
         }
     }
 }
