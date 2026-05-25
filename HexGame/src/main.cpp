@@ -1,6 +1,8 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <QIcon>
+#include <QQmlContext>
+#include "hexagon.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -10,7 +12,7 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
-    app.setWindowIcon(QIcon("qrc:/resources/icon.ico"));
+    qmlRegisterType<Hexagon>("App", 1, 0, "Hexagon");
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/qt/qml/hexgame/src/qml/main.qml")));

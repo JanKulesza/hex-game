@@ -15,6 +15,9 @@ qt_standard_project_setup()
 
 set(PROJECT_SOURCES
     src/main.cpp
+    src/types.h
+    src/hexagon.cpp
+    src/hexagon.h
 )
 
 if(QT_VERSION VERSION_LESS 5.15)
