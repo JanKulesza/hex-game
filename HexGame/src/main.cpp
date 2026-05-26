@@ -2,6 +2,8 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include "hexagon.h"
+#include "board.h"
+#include "types.h"
 
 
 int main(int argc, char *argv[])
@@ -13,6 +15,9 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     qmlRegisterType<Hexagon>("App", 1, 0, "Hexagon");
+    Board* b = new Board();
+    qmlRegisterSingletonInstance<Board>("App", 1, 0, "Board", b);
+    qmlRegisterType<Game>("App", 1, 0, "Game");
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/qt/qml/hexgame/src/qml/main.qml")));

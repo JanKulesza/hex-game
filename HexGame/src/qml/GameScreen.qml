@@ -1,9 +1,11 @@
 import QtQuick
 import QtQuick.Layouts
 import "widgets"
+import App
 
 Item {
-	property string whosTurn: "PLAYER"
+    Component.onCompleted: {
+    }
 	anchors.fill: parent
 	ColumnLayout {
 		anchors.fill: parent
@@ -101,6 +103,15 @@ Item {
 			}
 		}
 
+		Item { Layout.fillHeight: true }
+		//Repeater {
+			//model: Board.matrix
+			Hexagon {
+				width: 20
+				height: 20
+			}
+		//}
+		
 		Item { Layout.fillHeight: true }
 		SecondaryBtn {
 			icon: "🚩"

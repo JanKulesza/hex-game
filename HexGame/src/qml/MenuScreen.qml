@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import "widgets"
+import App
 
 Item {
 	id: menuScreen
@@ -39,7 +40,10 @@ Item {
 				primary: true
 				icon: "🎲"
 				text: "New Game"
-				onClicked: stack.push(Qt.resolvedUrl("NewGameScreen.qml"))
+				onClicked: {
+					stack.push(Qt.resolvedUrl("NewGameScreen.qml"))
+					Board.resetGame();
+				}
 			}
 			PrimaryBtn {
 			    icon: "⚙"

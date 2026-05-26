@@ -1,6 +1,7 @@
+#pragma once
+
 #include <QQuickPaintedItem>
 #include <QPainter>
-
 
 class Hexagon : public QQuickPaintedItem
 {

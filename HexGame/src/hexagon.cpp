@@ -3,7 +3,7 @@
 #include "types.h"
 
 void Hexagon::paint(QPainter* painter) {
-    tColor = to_string(Color::Empty);
+    tColor = to_string(Game::Color::Empty);
 
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setBrush(QBrush(tColor));

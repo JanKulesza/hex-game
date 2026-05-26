@@ -18,6 +18,8 @@ set(PROJECT_SOURCES
     src/types.h
     src/hexagon.cpp
     src/hexagon.h
+    src/board.cpp
+    src/board.h
 )
 
 if(QT_VERSION VERSION_LESS 5.15)
