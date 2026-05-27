@@ -10,6 +10,7 @@ class Board : public QObject
 {
 	Q_OBJECT
 		Q_PROPERTY(int size READ getSize WRITE setSize NOTIFY sizeChanged)
+		Q_PROPERTY(int round READ getRound NOTIFY roundChanged)
 		Q_PROPERTY(Game::Color currentPlayer READ getCurrentPlayer WRITE setCurrentPlayer NOTIFY currentPlayerChanged)
 		Q_PROPERTY(Game::Color playersColor READ getPlayersColor WRITE setPlayersColor NOTIFY playersColorChanged)
 		Q_PROPERTY(Game::Color whoStarts READ getWhoStarts WRITE setWhoStarts NOTIFY whoStartsChanged)
@@ -28,6 +29,7 @@ public:
 	void setWhoStarts(Game::Color ws);
 	void setAiDifficulty(Game::Difficulty d);
 	int getSize();
+	int getRound();
 	Game::Color getCurrentPlayer();
 	Game::Color getPlayersColor();
 	Game::Color getWhoStarts();
@@ -35,6 +37,7 @@ public:
 	QList<Hexagon*> getHexagons();
 signals:
 	void sizeChanged();
+	void roundChanged();
 	void currentPlayerChanged();
 	void playersColorChanged();
 	void aiDifficultyChanged();
@@ -43,6 +46,7 @@ signals:
 
 private:
 	int m_size;
+	int m_round;
 	Game::Color m_currentPlayer;
 	Game::Color m_playersColor;
 	Game::Color m_whoStarts;

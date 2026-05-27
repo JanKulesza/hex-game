@@ -32,7 +32,7 @@ Item {
 					    anchors.verticalCenter: parent.verticalCenter
 					    spacing: 2
 					    Text {
-					        text: "You (Blue)"
+					        text: Board.playersColor != Game.Color.Blue ? "AI (Red)" : "You (Red)"
 					        font.pixelSize: 16
 					        font.weight: 600
 							font.letterSpacing: 2
@@ -53,7 +53,7 @@ Item {
 				    anchors.verticalCenter: parent.verticalCenter
 				    spacing: 2
 				    Text {
-				        text: "Tura 0"
+				        text: "Round: " + Board.round
 						horizontalAlignment: Text.AlignHCenter
 						width: 50
 				        font.pixelSize: 16
@@ -61,7 +61,9 @@ Item {
 				        color: "white"
 				    }
 				    Text {
-				        text: whosTurn == "PLAYER" ? "Your turn" : "AI's turn"
+				        text: Board.currentPlayer == Game.Color.Blue 
+						? Board.playersColor == Game.Color.Blue ? "Your turn" : "AI's turn"
+						: Board.playersColor == Game.Color.Blue ? "AI's turn" : "Your turn"
 						horizontalAlignment: Text.AlignHCenter
 						width: 50
 				        font.pixelSize: 14
@@ -76,7 +78,7 @@ Item {
 					    anchors.verticalCenter: parent.verticalCenter
 					    spacing: 2
 					    Text {
-					        text: "AI (Red)"
+					        text: Board.playersColor == Game.Color.Blue ? "AI (Red)" : "You (Red)"
 					        font.pixelSize: 16
 					        font.weight: 600
 							horizontalAlignment: Text.AlignRight

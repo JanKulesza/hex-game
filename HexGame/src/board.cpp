@@ -4,9 +4,11 @@ void Board::resetGame()
 {
 	m_hexagons.clear();
 	m_size = 9;
+	m_round = 0;
 	m_currentPlayer = m_playersColor = m_whoStarts = Game::Color::Blue;
 	m_aiDifficulty = Game::Difficulty::Medium;
 	emit sizeChanged();
+	emit roundChanged();
 	emit playersColorChanged();
 	emit whoStartsChanged();
 	emit aiDifficultyChanged();
@@ -27,7 +29,10 @@ Q_INVOKABLE void Board::pick(int id)
 
 	m_hexagons[id]->setColor(m_currentPlayer);
 	m_currentPlayer = m_currentPlayer == Game::Color::Blue ? Game::Color::Red : Game::Color::Blue;
+	m_round++;
 	emit m_hexagons[id]->colorChanged();
+	emit roundChanged();
+	emit currentPlayerChanged();
 }
 
 void Board::setSize(int s)
@@ -69,6 +74,11 @@ void Board::setAiDifficulty(Game::Difficulty d)
 int Board::getSize()
 {
 	return m_size;
+}
+
+int Board::getRound()
+{
+	return m_round;
 }
 
 Game::Color Board::getCurrentPlayer()
