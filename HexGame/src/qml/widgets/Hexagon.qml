@@ -39,7 +39,7 @@ Item
             cursorShape: Qt.PointingHandCursor
         }
         TapHandler {
-            onTapped: Board.pick(hexId)
+            onTapped: Board.pick(hexId, true)
         }
     }
 }

@@ -21,7 +21,7 @@ public:
 
 	Q_INVOKABLE void resetGame();
 	Q_INVOKABLE void createBoard();
-	Q_INVOKABLE void pick(int id);
+	Q_INVOKABLE void pick(int id, bool isPlayer);
 
 	void setSize(int s);
 	void setCurrentPlayer(Game::Color cp);
@@ -52,4 +52,5 @@ private:
 	Game::Color m_whoStarts;
 	Game::Difficulty m_aiDifficulty;
 	QList<Hexagon*> m_hexagons; // Hexagons row [i % size], col[i - i % size]
+	QList<QList<int>> m_graph; // hexagon connections
 };

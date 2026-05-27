@@ -18,13 +18,31 @@ void Board::createBoard()
 {
 	if (!m_hexagons.isEmpty())
 		return;
-	for (int i = 0; i < m_size * m_size; i++)
+	const int N = m_size * m_size;
+	for (int i = 0; i < N; i++)
 		m_hexagons.append(new Hexagon(this));
+
+	QList<QPair<int, int>> potentialNeighs = {
+		{-1,0},
+		{-1,1},
+		{0,-1},
+		{0,1},
+		{1,-1},
+		{1,0}
+	};
+	m_graph = QList<QList<int>>(N, QList<int>(0));
+	for (int i = 0; i < N; i++)
+	{
+		int y = i / m_size, x = i % m_size;
+		for (auto [diffY, diffX] : potentialNeighs)
+			if (y + diffY >= 0 && y + diffY < N && x + diffX >= 0 && x + diffX < N)
+				m_graph[i].append((y + diffY) * m_size + x + diffX);
+	}
 }
 
-Q_INVOKABLE void Board::pick(int id)
+Q_INVOKABLE void Board::pick(int id, bool isPlayer)
 {
-	if (m_hexagons[id]->getColor() != Game::Color::Empty)
+	if (m_hexagons[id]->getColor() != Game::Color::Empty || isPlayer && m_currentPlayer != m_playersColor)
 		return;
 
 	m_hexagons[id]->setColor(m_currentPlayer);
