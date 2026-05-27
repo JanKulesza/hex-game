@@ -14,7 +14,6 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
-    //qmlRegisterType<Hexagon>("App", 1, 0, "Hexagon");
     qmlRegisterType<Game>("App", 1, 0, "Game");
     Board* b = new Board();
     qmlRegisterSingletonInstance<Board>("App", 1, 0, "Board", b);

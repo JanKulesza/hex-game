@@ -12,6 +12,24 @@ void Board::resetGame()
 	emit aiDifficultyChanged();
 }
 
+void Board::createBoard()
+{
+	if (!m_hexagons.isEmpty())
+		return;
+	for (int i = 0; i < m_size * m_size; i++)
+		m_hexagons.append(new Hexagon(this));
+}
+
+Q_INVOKABLE void Board::pick(int id)
+{
+	if (m_hexagons[id]->getColor() != Game::Color::Empty)
+		return;
+
+	m_hexagons[id]->setColor(m_currentPlayer);
+	m_currentPlayer = m_currentPlayer == Game::Color::Blue ? Game::Color::Red : Game::Color::Blue;
+	emit m_hexagons[id]->colorChanged();
+}
+
 void Board::setSize(int s)
 {
 	if (s == m_size) return;
@@ -75,8 +93,5 @@ Game::Difficulty Board::getAiDifficulty()
 
 QList<Hexagon*> Board::getHexagons()
 {
-	if(m_hexagons.isEmpty())
-		for (int i = 0; i < m_size*m_size; i++)
-			m_hexagons.append(new Hexagon());
 	return m_hexagons;
 }

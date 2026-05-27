@@ -16,6 +16,7 @@ qt_standard_project_setup()
 set(PROJECT_SOURCES
     src/main.cpp
     src/types.h
+    src/types.cpp
     src/hexagon.cpp
     src/hexagon.h
     src/board.cpp

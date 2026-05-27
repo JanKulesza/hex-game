@@ -19,6 +19,8 @@ public:
 	Board() {}
 
 	Q_INVOKABLE void resetGame();
+	Q_INVOKABLE void createBoard();
+	Q_INVOKABLE void pick(int id);
 
 	void setSize(int s);
 	void setCurrentPlayer(Game::Color cp);

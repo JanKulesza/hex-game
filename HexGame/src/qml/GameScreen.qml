@@ -4,8 +4,6 @@ import "widgets"
 import App
 
 Item {
-    Component.onCompleted: {
-    }
 	anchors.fill: parent
 	ColumnLayout {
 		anchors.fill: parent
@@ -107,24 +105,27 @@ Item {
 			Layout.fillHeight: true
 			Layout.fillWidth: true
 			Column {
-				id: boardLayout
+				id: boardRoot
 				property real hexSize: 7 * 9.0 / Board.size 
 				anchors.centerIn: parent
 				// Center in item, recompensate for row translate
-				transform: Translate { x: -(boardLayout.hexSize * 5.2 / 2) * (Board.size - 1) / 2.0 }
+				transform: Translate { x: -(boardRoot.hexSize * 5.2 / 2) * (Board.size - 1) / 2.0 }
 				Repeater {
 				model: Board.size
 				delegate: Row { 
+							readonly property int rowIndex: index
 							transform: Translate { 
-							    x: (boardLayout.hexSize * 5.2 / 2) * model.index;
-								y: -(boardLayout.hexSize * 6 * 0.25) * model.index
+							    x: (boardRoot.hexSize * 5.2 / 2) * rowIndex;
+								y: -(boardRoot.hexSize * 6 * 0.25) * rowIndex
 							}
 							Repeater {
+								id: rowRep
 								model: Board.size
 								Hexagon {
-									srh: boardLayout.hexSize
-									width: boardLayout.hexSize * 5.2
-									height: boardLayout.hexSize * 6
+									srh: boardRoot.hexSize
+									width: boardRoot.hexSize * 5.2
+									height: boardRoot.hexSize * 6
+									hexId: rowIndex * Board.size + index
 								}
 							} 
 						}

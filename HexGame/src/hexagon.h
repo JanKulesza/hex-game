@@ -1,21 +1,22 @@
 #pragma once
 #include <QObject>
-#include <QColor>
+#include <QString>
+#include "types.h"
 
 class Hexagon : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+    Q_PROPERTY(QString color READ getColorStr NOTIFY colorChanged)
 
 public:
-    explicit Hexagon(QObject* parent = nullptr): QObject(parent) {};
-    QColor color() const;
-    void setColor(const QColor& color);
-
+    Hexagon(QObject* parent = nullptr): QObject(parent), m_color(Game::Color::Empty) {};
+    QString getColorStr();
+    Game::Color getColor();
+    void setColor(Game::Color color);
 
 signals:
     void colorChanged();
 
 private:
-    QColor m_color;
+    Game::Color m_color;
 };

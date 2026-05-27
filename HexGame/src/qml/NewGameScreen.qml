@@ -109,7 +109,10 @@ Item {
             icon: "🎲"
             text: "START GAME"
             width: parent.width
-            onClicked: stack.push(Qt.resolvedUrl("GameScreen.qml"))
+            onClicked: {
+                Board.createBoard()
+                stack.push(Qt.resolvedUrl("GameScreen.qml"))
+            }
         }
         SecondaryBtn {
             text: "Back"
