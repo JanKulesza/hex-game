@@ -1,8 +1,11 @@
 #pragma once
+#include <QObject>
+#include <QColor>
+#include <QtQml/qqml.h>
 
 class Game : public QObject {
 	Q_OBJECT
-		QML_UNCREATABLE("Enum class is uncreatable")
+	QML_UNCREATABLE("Enum class is uncreatable");
 public:
 	enum Difficulty {
 		Easy,

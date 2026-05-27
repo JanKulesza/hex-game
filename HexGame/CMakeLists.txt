@@ -43,6 +43,7 @@ if(QT_VERSION VERSION_GREATER_EQUAL 6.2)
             src/qml/widgets/PrimaryBtn.qml
             src/qml/widgets/SecondaryBtn.qml
             src/qml/widgets/CardSection.qml
+            src/qml/widgets/Hexagon.qml
     )
     qt_add_resources(${PROJECT_NAME} "resources"
         PREFIX "/"

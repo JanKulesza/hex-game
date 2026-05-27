@@ -2,7 +2,7 @@
 
 void Board::resetGame()
 {
-	matrix.clear();
+	m_hexagons.clear();
 	m_size = 9;
 	m_currentPlayer = m_playersColor = m_whoStarts = Game::Color::Blue;
 	m_aiDifficulty = Game::Difficulty::Medium;
@@ -71,4 +71,12 @@ Game::Color Board::getWhoStarts()
 Game::Difficulty Board::getAiDifficulty()
 {
 	return m_aiDifficulty;
+}
+
+QList<Hexagon*> Board::getHexagons()
+{
+	if(m_hexagons.isEmpty())
+		for (int i = 0; i < m_size*m_size; i++)
+			m_hexagons.append(new Hexagon());
+	return m_hexagons;
 }

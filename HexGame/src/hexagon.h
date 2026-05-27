@@ -1,22 +1,21 @@
 #pragma once
+#include <QObject>
+#include <QColor>
 
-#include <QQuickPaintedItem>
-#include <QPainter>
-
-class Hexagon : public QQuickPaintedItem
+class Hexagon : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
 public:
-    Hexagon() {}
-    void paint(QPainter* painter) override;
+    explicit Hexagon(QObject* parent = nullptr): QObject(parent) {};
     QColor color() const;
     void setColor(const QColor& color);
+
 
 signals:
     void colorChanged();
 
 private:
-    QColor tColor;
+    QColor m_color;
 };

@@ -2,7 +2,7 @@
 
 #include "hexagon.h"
 #include "types.h"
-#include <vector>
+#include <QList>
 #include <QtQml>
 #include <QObject>
 
@@ -13,7 +13,7 @@ class Board : public QObject
 		Q_PROPERTY(Game::Color currentPlayer READ getCurrentPlayer WRITE setCurrentPlayer NOTIFY currentPlayerChanged)
 		Q_PROPERTY(Game::Color playersColor READ getPlayersColor WRITE setPlayersColor NOTIFY playersColorChanged)
 		Q_PROPERTY(Game::Color whoStarts READ getWhoStarts WRITE setWhoStarts NOTIFY whoStartsChanged)
-		Q_PROPERTY(Game::Difficulty aiDifficulty READ getAiDifficulty WRITE setAiDifficulty NOTIFY aiDifficultyChanged)
+		Q_PROPERTY(QList<Hexagon*> hexagons READ getHexagons NOTIFY hexagonsChanged)
 
 public:
 	Board() {}
@@ -30,12 +30,14 @@ public:
 	Game::Color getPlayersColor();
 	Game::Color getWhoStarts();
 	Game::Difficulty getAiDifficulty();
+	QList<Hexagon*> getHexagons();
 signals:
 	void sizeChanged();
 	void currentPlayerChanged();
 	void playersColorChanged();
 	void aiDifficultyChanged();
 	void whoStartsChanged();
+	void hexagonsChanged();
 
 private:
 	int m_size;
@@ -43,6 +45,5 @@ private:
 	Game::Color m_playersColor;
 	Game::Color m_whoStarts;
 	Game::Difficulty m_aiDifficulty;
-	std::vector<std::vector<Hexagon*>> matrix;
-
+	QList<Hexagon*> m_hexagons; // Hexagons row [i % size], col[i - i % size]
 };

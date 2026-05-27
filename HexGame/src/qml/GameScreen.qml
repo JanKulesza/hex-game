@@ -103,20 +103,43 @@ Item {
 			}
 		}
 
-		Item { Layout.fillHeight: true }
-		//Repeater {
-			//model: Board.matrix
-			Hexagon {
-				width: 20
-				height: 20
+		Item {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+			Column {
+				id: boardLayout
+				property real hexSize: 7 * 9.0 / Board.size 
+				anchors.centerIn: parent
+				// Center in item, recompensate for row translate
+				transform: Translate { x: -(boardLayout.hexSize * 5.2 / 2) * (Board.size - 1) / 2.0 }
+				Repeater {
+				model: Board.size
+				delegate: Row { 
+							transform: Translate { 
+							    x: (boardLayout.hexSize * 5.2 / 2) * model.index;
+								y: -(boardLayout.hexSize * 6 * 0.25) * model.index
+							}
+							Repeater {
+								model: Board.size
+								Hexagon {
+									srh: boardLayout.hexSize
+									width: boardLayout.hexSize * 5.2
+									height: boardLayout.hexSize * 6
+								}
+							} 
+						}
+				}
 			}
-		//}
+		}
 		
-		Item { Layout.fillHeight: true }
 		SecondaryBtn {
 			icon: "🚩"
 			text: "Resign"
 			Layout.fillWidth: true
+			onClicked: {
+				stack.pop()
+				stack.pop()
+			}
 		}
 	}
 }
