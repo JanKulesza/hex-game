@@ -9,7 +9,8 @@ class Hexagon : public QObject
     Q_PROPERTY(QString color READ getColorStr NOTIFY colorChanged)
 
 public:
-    Hexagon(QObject* parent = nullptr): QObject(parent), m_color(Game::Color::Empty) {};
+    Hexagon(int id, QObject* parent = nullptr): QObject(parent), m_color(Game::Color::Empty), id(id) {};
+    const int id;
     QString getColorStr();
     Game::Color getColor();
     void setColor(Game::Color color);

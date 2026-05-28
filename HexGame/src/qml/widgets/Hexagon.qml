@@ -25,14 +25,14 @@ Item
             fillColor: Board.hexagons[hexId].color
             
             //Path
-            startX:       2.6     * root.srh;
-            startY:                        0            * root.srh
-            PathLine { x: 5.2   * root.srh;  y: 1.5         * root.srh }
-            PathLine { x: 5.2   * root.srh;  y: (6.0-1.5)   * root.srh }
+            startX:       2.6   * root.srh;
+            startY:                             0            * root.srh
+            PathLine { x: 5.2   * root.srh;  y: 1.5          * root.srh }
+            PathLine { x: 5.2   * root.srh;  y: (6.0-1.5)    * root.srh }
             PathLine { x: 2.6   * root.srh;  y: 6.0          * root.srh }
-            PathLine { x: 0     * root.srh;  y: (6.0-1.5)   * root.srh }
-            PathLine { x: 0     * root.srh;  y: 1.5         * root.srh }
-            PathLine { x: 2.6     * root.srh;  y: 0            * root.srh }
+            PathLine { x: 0     * root.srh;  y: (6.0-1.5)    * root.srh }
+            PathLine { x: 0     * root.srh;  y: 1.5          * root.srh }
+            PathLine { x: 2.6   * root.srh;  y: 0            * root.srh }
         }
         HoverHandler {
             id: hoverHandler
