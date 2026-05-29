@@ -54,5 +54,5 @@ private:
 	QList<Hexagon*> m_hexagons; // Hexagons row [i % size], col[i - i % size]
 	QList<QList<int>> m_graph; // hexagon connections
 
-	QList<lwHexagon> getLocalHexagons();
+	QMap<int, Game::Color> getLocalHexagons();
 };

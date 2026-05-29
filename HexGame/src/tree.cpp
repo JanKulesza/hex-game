@@ -1,9 +1,23 @@
 #include "tree.h"
 #include <algorithm>
+#include <random>
+
+//	TO DO: Multithreading
+//	TO DO: DSU
+//	TO DO: optimize storage allocation eg. int -> uint8_t
+
+static std::random_device rd;
+static std::mt19937 g(rd());
+
+Game::Color Tree::getColorOfPlayer(Players player)
+{
+	return player == Players::AI ? aiColor :
+		aiColor == Game::Color::Blue ? Game::Color::Red : Game::Color::Blue;
+}
 
 bool Tree::haveWon(Game::Color who, QMap<int, Game::Color>& state, const QList<QList<int>>& m_graph)
 {
-	int size = sqrt(m_graph.size());
+	int size = qSqrt(m_graph.size());
 	QList<int> stack;
 	QSet<int> visited, winnablePos;
 
@@ -39,42 +53,112 @@ bool Tree::haveWon(Game::Color who, QMap<int, Game::Color>& state, const QList<Q
 	return false;
 }
 
-bool Tree::runSimulation()
+bool Tree::Node::runSimulation() // Check if current player in node have won simulation
 {
 	auto list = m_legalMoves;
-	QMap<int, Game::Color> simState; // Initialize simulation state
-	for (auto [id, color] : m_state) 
-		simState[id] = color;
-
-	std::random_device rd;
-	std::mt19937 g(rd());
+	auto simState = m_state; // Initialize simulation state
 
 	std::shuffle(list.begin(), list.end(), g);
 
 	// Choose colors randomly
-	Game::Color nextMove = m_currentPlayer;
+	Game::Color nextMove = tree.getColorOfPlayer(m_currentPlayer);
 	for (int i = 0; i < list.length(); i++)
 	{
 		simState[list[i]] = nextMove;
 		nextMove = nextMove == Game::Color::Blue ? Game::Color::Red : Game::Color::Blue;
 	}
 
-	return haveWon(m_currentPlayer, simState, m_graph);
+	return haveWon(tree.getColorOfPlayer(m_currentPlayer), simState, tree.m_graph);
 }
 
-int Tree::mcts()
+int Tree::mcts(int iterations)
 {
-	return 0;
-}
+	Node* curNode = this->m_node;
 
-int Tree::getDepth() const
-{
-	return m_depth;
-}
+	while (iterations > 0)
+	{
+		// Selection
+		int selectedHexId;
+		bool isTerminalNode = false;
 
-Game::Color Tree::getCurrentPlayer() const
-{
-	return m_currentPlayer;
+		if (curNode->m_legalMoves.size() > 0) {
+			std::uniform_int_distribution<int> dist(0, curNode->m_legalMoves.size() - 1);
+			int indexToRemove = dist(g);
+			selectedHexId = curNode->m_legalMoves[indexToRemove];
+			curNode->m_legalMoves.takeAt(indexToRemove);
+		}
+		else if (curNode->children.size() > 0) {
+			for (auto c : curNode->children)
+				if (c->m_vis > 0.0)
+					c->m_uct = (c->m_win / c->m_vis) + 1.41 * qSqrt(qLn(curNode->m_vis) / c->m_vis);
+
+			double maxUCT = -1;
+			Node* nextNode = nullptr;
+
+			for (auto n : curNode->children)
+				if (n->m_uct > maxUCT) {
+					maxUCT = n->m_uct;
+					nextNode = n;
+				}
+			if (nextNode == nullptr) {
+				qDebug("Next node is nullptr!");
+				nextNode = curNode->children[0];
+			}
+			curNode = nextNode;
+			continue;
+		}
+		else
+			isTerminalNode = true;
+
+		bool aiWonSimulation;
+
+		// Expansion
+		if (!isTerminalNode) {
+			Node* expandedNode = new Node(
+				curNode->tree,
+				curNode->m_state,
+				curNode->m_depth + 1,
+				curNode->m_currentPlayer == Tree::Players::AI ? Tree::Players::Human : Tree::Players::AI,
+				curNode,
+				selectedHexId
+			);
+			expandedNode->m_state[selectedHexId] = curNode->tree.getColorOfPlayer(curNode->m_currentPlayer);
+			curNode->children.append(expandedNode);
+			curNode = expandedNode;
+
+			// Simulation
+			aiWonSimulation = curNode->runSimulation()
+				? curNode->m_currentPlayer == Tree::Players::AI
+				: curNode->m_currentPlayer != Tree::Players::AI;
+		}
+		else
+			aiWonSimulation = haveWon(getColorOfPlayer(Players::AI), curNode->m_state, m_graph);
+
+		// Backpropagation
+		while (curNode->parent != nullptr)
+		{
+			curNode->m_vis++;
+			if (aiWonSimulation)
+				curNode->m_win++;
+			curNode = curNode->parent;
+		}
+
+		curNode->m_vis++;
+		if (aiWonSimulation)
+			curNode->m_win++;
+
+		iterations--;
+	}
+
+	int mostRobustId;
+	double maxVis = -1;
+	for (auto n : m_node->children)
+		if (n->m_vis > maxVis) {
+			maxVis = n->m_vis;
+			mostRobustId = n->chosenHexId;
+		}
+
+	return mostRobustId;
 }
 
 QList<QList<int>> Tree::getConnections() const

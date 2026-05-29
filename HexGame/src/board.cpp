@@ -46,10 +46,10 @@ void Board::createBoard()
 	}
 }
 
-QList<lwHexagon> Board::getLocalHexagons() {
-	QList<lwHexagon> lwh;
+QMap<int,Game::Color> Board::getLocalHexagons() {
+	QMap<int, Game::Color> lwh;
 	for (Hexagon* h : m_hexagons)
-		lwh.append({ h->id, h->getColor() });
+		lwh[h->id] = h->getColor();
 
 	return lwh;
 }
@@ -69,8 +69,8 @@ Q_INVOKABLE void Board::pick(int id, bool isPlayer)
 
 	// If isPlayer make AI move
 	if (isPlayer) {
-		//Tree t(getLocalHexagons(), m_currentPlayer, m_graph);
-		//pick(t.mcts(), false);
+		Tree t(getLocalHexagons(), m_currentPlayer, m_graph);
+		pick(t.mcts(100000), false);
 	}
 }
 

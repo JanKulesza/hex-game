@@ -11,38 +11,63 @@ class Tree : public QObject
 	Q_OBJECT
 
 public:
-	// TO DO: Make node QMap
-	Tree(Game::Color currentPlayer, const QList<QList<int>>& connections, Tree* parent = nullptr) 
-		: m_currentPlayer(currentPlayer), m_graph(connections), parent(parent), m_depth(0) {} // Empty tree
-	Tree(QList<lwHexagon> node, Game::Color currentPlayer, const QList<QList<int>>& connections) 
-		: m_state(node), m_currentPlayer(currentPlayer), m_graph(connections), parent(nullptr), m_depth(0) {} // Root tree
-	Tree(QList<lwHexagon> node,  Game::Color currentPlayer, Tree* parent) 
-		: m_state(node), m_currentPlayer(currentPlayer), parent(parent), m_graph(parent->getConnections()), m_depth(parent->getDepth() + 1), m_uct(0) { // Child constructor
-		for (auto [i, c] : m_state)
-			if (c == Game::Color::Empty)
-				m_legalMoves.append(i);
+	Tree(const QList<QList<int>> connections, Game::Color aiC) // Empty tree
+		: m_graph(connections), m_node(nullptr), aiColor(aiC) {
 	}
-	int getDepth() const;
-	Game::Color getCurrentPlayer() const;
+	Tree(QMap<int, Game::Color> state, Game::Color aiC, const QList<QList<int>> connections) // Root tree
+		: m_graph(connections), aiColor(aiC) {
+		// cP is always AI
+		m_node = new Node(*this, state, 0, Players::AI, nullptr, -1);
+	}
+
+	~Tree() { delete m_node; }
+
 	QList<QList<int>> getConnections() const;
-	
-	int mcts();
-	static bool haveWon(Game::Color who, QMap<int,Game::Color>& state, const QList<QList<int>>& m_graph);
+
+	int mcts(int iterations);
+	static bool haveWon(Game::Color who, QMap<int, Game::Color>& state, const QList<QList<int>>& m_graph);
 
 signals:
 
 private:
-	QList<lwHexagon> m_state; // Current board state
-	QList<int> m_legalMoves;
+	enum Players {
+		AI,
+		Human
+	};
+
+	struct Node
+	{
+		Tree& tree;
+
+		QMap<int, Game::Color> m_state; // Current board state
+		QList<int> m_legalMoves;
+		const int m_depth;
+		const Players m_currentPlayer;
+		const int chosenHexId;
+
+		double m_win = 0;
+		double m_vis = 0;
+		double m_uct = INFINITY; // Upper Confidence Bound 1 applied to trees, INFINITY so each child is visited at least once
+
+		Node* parent;
+		QList<Node*> children = {};
+
+		bool runSimulation();
+
+		Node(Tree& t, const QMap<int, Game::Color>& state, int d, Players cP, Node* p, int id) :
+			tree(t), m_state(state), m_depth(d), m_currentPlayer(cP), parent(p), chosenHexId(id) {
+			for (auto i = m_state.cbegin(), end = m_state.cend(); i != end; ++i) // QMap guarantees sorted
+				if (i.value() == Game::Color::Empty)
+					m_legalMoves.append(i.key());
+		}
+
+		~Node() {
+			qDeleteAll(children);
+		}
+	};
+
+	Game::Color getColorOfPlayer(Players player);
+	Node* m_node;
 	const QList<QList<int>>& m_graph;
-	const int m_depth;
-	const Game::Color m_currentPlayer;
-	int m_win = 0;
-	int m_vis = 0;
-	double m_uct; // Upper Confidence Bound 1 applied to trees
-
-	const Tree* parent;
-	QList<Tree*> children;
-
-	bool runSimulation();
+	const Game::Color aiColor;
 };
