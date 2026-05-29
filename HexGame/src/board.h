@@ -6,11 +6,6 @@
 #include <QtQml>
 #include <QObject>
 
-struct lwHexagon {
-	int id;
-	Game::Color color;
-};
-
 class Board : public QObject
 {
 	Q_OBJECT
@@ -57,12 +52,7 @@ private:
 	Game::Color m_whoStarts;
 	Game::Difficulty m_aiDifficulty;
 	QList<Hexagon*> m_hexagons; // Hexagons row [i % size], col[i - i % size]
-	QList<lwHexagon> m_cachedLwh;
 	QList<QList<int>> m_graph; // hexagon connections
 
-	bool haveWon(Game::Color who, QList<lwHexagon>& l_hexagons);
 	QList<lwHexagon> getLocalHexagons();
-	void aiMove();
-	int monteCarloEval(const int id);
-	void shuffle(QList<lwHexagon>& list);
 };

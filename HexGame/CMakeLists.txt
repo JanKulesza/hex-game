@@ -21,6 +21,8 @@ set(PROJECT_SOURCES
     src/hexagon.h
     src/board.cpp
     src/board.h
+    src/tree.cpp
+    src/tree.h
 )
 
 if(QT_VERSION VERSION_LESS 5.15)

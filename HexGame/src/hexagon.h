@@ -21,3 +21,8 @@ signals:
 private:
     Game::Color m_color;
 };
+
+struct lwHexagon {
+    int id;
+    Game::Color color;
+};
