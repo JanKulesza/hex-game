@@ -44,6 +44,9 @@ void Board::createBoard()
 			if (y + diffY >= 0 && y + diffY < N && x + diffX >= 0 && x + diffX < N)
 				m_graph[i].append((y + diffY) * m_size + x + diffX);
 	}
+
+	if (m_currentPlayer != m_playersColor)
+		m_aiThinking = true;
 }
 
 QMap<int,Game::Color> Board::getLocalHexagons() {
@@ -54,24 +57,42 @@ QMap<int,Game::Color> Board::getLocalHexagons() {
 	return lwh;
 }
 
-Q_INVOKABLE void Board::pick(int id, bool isPlayer)
+void Board::startThread()
 {
+	m_aiThinking = true;
+	QThread* thread = new QThread(this);
+	TreeWorker* worker = new TreeWorker(getLocalHexagons(), m_currentPlayer, m_graph, m_aiDifficulty);
+
+	worker->moveToThread(thread);
+
+	connect(thread, &QThread::started, worker, &TreeWorker::doWork);
+
+	connect(worker, &TreeWorker::resultReady, this, &Board::pick, Qt::QueuedConnection);
+
+	connect(worker, &TreeWorker::resultReady, thread, &QThread::quit);
+	connect(thread, &QThread::finished, worker, &QObject::deleteLater);
+	connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+
+	thread->start();
+}
+
+Q_INVOKABLE void Board::pick(const int id, bool isPlayer)
+{
+	if (!isPlayer)
+		m_aiThinking = false;
 	// Validate move
-	if (m_hexagons[id]->getColor() != Game::Color::Empty || isPlayer && m_currentPlayer != m_playersColor)
+	if (m_hexagons[id]->getColor() != Game::Color::Empty || isPlayer && m_currentPlayer != m_playersColor || m_aiThinking)
 		return;
 	// Make move
+	m_round++;
 	m_hexagons[id]->setColor(m_currentPlayer);
 	m_currentPlayer = m_currentPlayer == Game::Color::Blue ? Game::Color::Red : Game::Color::Blue;
-	m_round++;
-	emit m_hexagons[id]->colorChanged();
 	emit roundChanged();
 	emit currentPlayerChanged();
 
 	// If isPlayer make AI move
-	if (isPlayer) {
-		Tree t(getLocalHexagons(), m_currentPlayer, m_graph);
-		pick(t.mcts(100000), false);
-	}
+	if (isPlayer)
+		startThread();
 }
 
 // Getters and setters

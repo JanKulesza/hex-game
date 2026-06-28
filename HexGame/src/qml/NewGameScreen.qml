@@ -72,7 +72,7 @@ Item {
                         text: modelData.label
                         height: 40
                         width: parent.width / 4 - 3*16/4
-                        active: Board.aiDifficulty === modelData.d
+                        active: Board.aiDifficulty == modelData.d
                         onClicked: Board.aiDifficulty = modelData.d
                     }
                 }

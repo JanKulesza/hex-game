@@ -71,10 +71,10 @@ bool Tree::Node::runSimulation() // Check if current player in node have won sim
 	return haveWon(tree.getColorOfPlayer(m_currentPlayer), simState, tree.m_graph);
 }
 
-int Tree::mcts(int iterations)
+void Tree::mcts(int iterations)
 {
-	Node* curNode = this->m_node;
 
+	Node* curNode = this->m_root;
 	while (iterations > 0)
 	{
 		// Selection
@@ -88,18 +88,18 @@ int Tree::mcts(int iterations)
 			curNode->m_legalMoves.takeAt(indexToRemove);
 		}
 		else if (curNode->children.size() > 0) {
-			for (auto c : curNode->children)
+			double maxUCT = -1;
+			Node* nextNode = nullptr;
+			for (auto c : curNode->children) {
 				if (c->m_vis > 0.0)
 					c->m_uct = (c->m_win / c->m_vis) + 1.41 * qSqrt(qLn(curNode->m_vis) / c->m_vis);
 
-			double maxUCT = -1;
-			Node* nextNode = nullptr;
-
-			for (auto n : curNode->children)
-				if (n->m_uct > maxUCT) {
-					maxUCT = n->m_uct;
-					nextNode = n;
+				if (c->m_uct > maxUCT) {
+					maxUCT = c->m_uct;
+					nextNode = c;
 				}
+			}
+
 			if (nextNode == nullptr) {
 				qDebug("Next node is nullptr!");
 				nextNode = curNode->children[0];
@@ -149,19 +149,13 @@ int Tree::mcts(int iterations)
 
 		iterations--;
 	}
-
-	int mostRobustId;
-	double maxVis = -1;
-	for (auto n : m_node->children)
-		if (n->m_vis > maxVis) {
-			maxVis = n->m_vis;
-			mostRobustId = n->chosenHexId;
-		}
-
-	return mostRobustId;
 }
 
-QList<QList<int>> Tree::getConnections() const
+QMap<int, int> Tree::getMovesEval()
 {
-	return m_graph;
+	QMap<int, int> eval;
+	for (Node* c : m_root->children) {
+		eval[c->chosenHexId] = c->m_vis;
+	}
+	return eval;
 }

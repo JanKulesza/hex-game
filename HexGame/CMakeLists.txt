@@ -6,7 +6,7 @@ include(qt.cmake)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Concurrent)
 find_package(Qt${QT_VERSION_MAJOR}
     COMPONENTS
         Quick
@@ -70,6 +70,7 @@ set_target_properties(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
         Qt::Quick
+        Qt::Concurrent
 )
 
 
