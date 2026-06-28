@@ -7,6 +7,8 @@
 static std::random_device rd;
 static std::mt19937 g(rd());
 
+static int threadsCount = QThread::idealThreadCount() < 1 ? 4 : QThread::idealThreadCount();
+
 Game::Color Tree::getColorOfPlayer(Players player)
 {
 	return player == Players::AI ? aiColor :
@@ -62,8 +64,9 @@ bool Tree::haveWon(Game::Color who, QMap<uint8_t, Game::Color>& state, const QLi
 
 bool Tree::Node::runSimulation() // Check if current player in node have won simulation
 {
-	auto s_legalMoves = m_legalMoves;
-	auto s_state = m_state; // Initialize simulation state
+
+	auto s_legalMoves = this->m_legalMoves;
+	auto s_state = this->m_state; // Initialize simulation state
 
 	std::shuffle(s_legalMoves.begin(), s_legalMoves.end(), g);
 
@@ -75,10 +78,11 @@ bool Tree::Node::runSimulation() // Check if current player in node have won sim
 		nextMove = nextMove == Game::Color::Blue ? Game::Color::Red : Game::Color::Blue;
 	}
 
-	return haveWon(tree.getColorOfPlayer(m_currentPlayer), s_state, tree.m_graph);
+	return haveWon(tree.getColorOfPlayer(Tree::Players::AI), s_state, tree.m_graph);
+
 }
 
-void Tree::mcts(int iterations)
+uint8_t Tree::mcts(int iterations)
 {
 	Node* curNode = this->m_root;
 	while (iterations > 0)
@@ -115,8 +119,6 @@ void Tree::mcts(int iterations)
 		else
 			isTerminalNode = true;
 
-		bool aiWonSimulation;
-
 		// Expansion
 		if (!isTerminalNode) {
 			Node* expandedNode = new Node(
@@ -127,62 +129,44 @@ void Tree::mcts(int iterations)
 				selectedHexId
 			);
 			expandedNode->m_state[selectedHexId] = curNode->tree.getColorOfPlayer(curNode->m_currentPlayer);
-			curNode->children.append(expandedNode);
+			curNode->children[selectedHexId] = expandedNode;
 			curNode = expandedNode;
 
-			// Simulation
-			aiWonSimulation = curNode->runSimulation()
-				? curNode->m_currentPlayer == Tree::Players::AI
-				: curNode->m_currentPlayer != Tree::Players::AI;
 		}
-		else
-			aiWonSimulation = haveWon(getColorOfPlayer(Players::AI), curNode->m_state, m_graph);
+
+		// Simulation
+		int aiWonSimulations = curNode->runSimulation() ? 1 : 0;
 
 		// Backpropagation
 		while (curNode->parent != nullptr)
 		{
 			curNode->m_vis++;
-			if (aiWonSimulation)
-				curNode->m_win++;
+			curNode->m_win += aiWonSimulations;
 			curNode = curNode->parent;
 		}
 
 		curNode->m_vis++;
-		if (aiWonSimulation)
-			curNode->m_win++;
+		curNode->m_win += aiWonSimulations;
 
 		iterations--;
-	}
-}
-
-void TreeWorker::doWork() {
-	int threadsCount = QThread::idealThreadCount();
-	if (threadsCount < 1)
-		threadsCount = 4;
-	QList<QFuture<QMap<uint8_t, int>>> futures;
-	for (int i = 0; i < threadsCount; i++)
-		futures.append(QtConcurrent::run([this]() {
-			Tree t(m_state, m_aiColor, m_graph);
-			t.mcts(this->iterations);
-			return t.getMovesEval();
-			}));
-
-	QMap<uint8_t, int> results;
-	for (auto future : futures) {
-		auto threadResult = future.result();
-		for (auto it = threadResult.cbegin(); it != threadResult.cend(); ++it) {
-			results[it.key()] += it.value();
-		}
 	}
 
 	uint8_t bestMoveId = -1;
 	int maxVis = -1;
-	for (auto it = results.cbegin(); it != results.cend(); ++it) {
-		if (it.value() > maxVis) {
-			maxVis = it.value();
-			bestMoveId = it.key();
+	for (auto c : m_root->children) {
+		if (c->m_vis > maxVis) {
+			maxVis = c->m_vis;
+			bestMoveId = c->chosenHexId;
 		}
 	}
+	return bestMoveId;
+}
+
+
+// pareller tress doesn't work we need only one source of thruth
+void TreeWorker::doWork() {
+	Tree t(m_state, m_aiColor, m_graph);
+	uint8_t bestMoveId = t.mcts(iterations);
 
 	emit resultReady(bestMoveId, false);
 }

@@ -24,7 +24,7 @@ public:
 	}
 	~Tree() { delete m_root; }
 
-	void mcts(int iterations);
+	uint8_t mcts(int iterations);
 	static bool haveWon(Game::Color who, QMap<uint8_t, Game::Color>& state, const QList<QList<uint8_t>>& graph);
 	QMap<uint8_t, int> getMovesEval();
 
@@ -66,7 +66,7 @@ private:
 		double m_uct = INFINITY; // Upper Confidence Bound 1 applied to trees, INFINITY so each child is visited at least once
 
 		Node* parent;
-		QList<Node*> children = {};
+		QHash<uint8_t,Node*> children;
 
 		bool runSimulation();
 	};
@@ -97,10 +97,10 @@ public:
 	{
 		switch (difficulty)
 		{
-		case Game::Difficulty::Easy:   iterations = 5000; break;
-		case Game::Difficulty::Medium: iterations = 25000; break;
-		case Game::Difficulty::Hard:   iterations = 50000; break;
-		case Game::Difficulty::Expert: iterations = 100000; break;
+		case Game::Difficulty::Easy:   iterations = 10000; break;
+		case Game::Difficulty::Medium: iterations = 50000; break;
+		case Game::Difficulty::Hard:   iterations = 100000; break;
+		case Game::Difficulty::Expert: iterations = 200000; break;
 		default:
 			break;
 		}
@@ -109,7 +109,7 @@ public slots:
 	void doWork();
 
 signals:
-	void resultReady(const int id, bool isPlayer);
+	void resultReady(const uint8_t id, bool isPlayer);
 
 private:
 	int iterations = 0;

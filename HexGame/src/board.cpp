@@ -46,7 +46,7 @@ void Board::createBoard()
 	}
 
 	if (m_currentPlayer != m_playersColor)
-		m_aiThinking = true;
+		startThread();
 }
 
 QMap<uint8_t,Game::Color> Board::getLocalHexagons() {
