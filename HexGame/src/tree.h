@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include <algorithm>
 #include <QList>
 #include <QtQml>
 #include <QObject>
@@ -11,17 +12,21 @@ class Tree : public QObject
 	Q_OBJECT
 
 public:
-	Tree(QMap<int, Game::Color> state, Game::Color aiC, QList<QList<int>> connections) // Root tree
-		: m_graph(connections), aiColor(aiC) {
-		// cP is always AI
-		m_root = new Node(*this, state, 0, Players::AI, nullptr, -1);
+	// Root tree
+	Tree(
+		QMap<uint8_t, Game::Color> state,
+		Game::Color aiColor,
+		QList<QList<uint8_t>>& graph
+	)
+		: m_graph(graph), aiColor(aiColor)
+	{
+		m_root = new Node(*this, state, Players::AI, nullptr, -1); // cP is always AI
 	}
-
 	~Tree() { delete m_root; }
 
 	void mcts(int iterations);
-	static bool haveWon(Game::Color who, QMap<int, Game::Color>& state, const QList<QList<int>>& m_graph);
-	QMap<int, int> getMovesEval();
+	static bool haveWon(Game::Color who, QMap<uint8_t, Game::Color>& state, const QList<QList<uint8_t>>& graph);
+	QMap<uint8_t, int> getMovesEval();
 
 private:
 	enum Players {
@@ -31,13 +36,30 @@ private:
 
 	struct Node
 	{
+		Node(
+			Tree& parentTree,
+			const QMap<uint8_t, Game::Color> state,
+			Players currentPlayer,
+			Node* parentNode, 
+			uint8_t idOfChosenHex
+		)
+			: tree(parentTree), m_state(state), m_currentPlayer(currentPlayer), parent(parentNode), chosenHexId(idOfChosenHex)
+		{
+			for (auto it = m_state.cbegin(), end = m_state.cend(); it != end; ++it) // QMap guarantees sorted, set legal moves on initialization
+				if (it.value() == Game::Color::Empty)
+					m_legalMoves.append(it.key());
+		}
+
+		~Node() {
+			qDeleteAll(children);
+		}
+
 		Tree& tree;
 
-		QMap<int, Game::Color> m_state; // Current board state
-		QList<int> m_legalMoves;
-		const int m_depth;
+		QMap<uint8_t, Game::Color> m_state; // Current board state
+		QList<uint8_t> m_legalMoves;
 		const Players m_currentPlayer;
-		const int chosenHexId;
+		const uint8_t chosenHexId;
 
 		double m_win = 0;
 		double m_vis = 0;
@@ -47,90 +69,51 @@ private:
 		QList<Node*> children = {};
 
 		bool runSimulation();
-
-		Node(Tree& t, const QMap<int, Game::Color>& state, int d, Players cP, Node* p, int id) :
-			tree(t), m_state(state), m_depth(d), m_currentPlayer(cP), parent(p), chosenHexId(id) {
-			for (auto i = m_state.cbegin(), end = m_state.cend(); i != end; ++i) // QMap guarantees sorted, set legal moves on initialization
-				if (i.value() == Game::Color::Empty)
-					m_legalMoves.append(i.key());
-		}
-
-		~Node() {
-			qDeleteAll(children);
-		}
 	};
 
-	Game::Color getColorOfPlayer(Players player);
-	Node* m_root;
-	QList<QList<int>> m_graph;
 	const Game::Color aiColor;
+	Node* m_root;
+	QList<QList<uint8_t>>& m_graph;
+
+	Game::Color getColorOfPlayer(Players player);
 };
+
+
 
 // Tree Worker
 class TreeWorker : public QObject
 {
 	Q_OBJECT
+
 public:
 	TreeWorker(
-		QMap<int, Game::Color> state,
-		Game::Color aiC,
-		const QList<QList<int>> connections,
+		QMap<uint8_t, Game::Color> state,
+		const Game::Color aiColor,
+		QList<QList<uint8_t>> connections,
 		Game::Difficulty difficulty,
-		QObject* parent = nullptr)
-		: QObject(parent), m_graph(connections), m_aiColor(aiC), m_state(state)
+		QObject* parent = nullptr
+	)
+		: QObject(parent), m_graph(connections), m_aiColor(aiColor), m_state(state)
 	{
 		switch (difficulty)
 		{
-		case Game::Easy:iterations = 1000; break;
-		case Game::Medium: iterations = 10000; break;
-		case Game::Hard: iterations = 50000; break;
-		case Game::Expert: iterations = 100000; break;
+		case Game::Difficulty::Easy:   iterations = 5000; break;
+		case Game::Difficulty::Medium: iterations = 25000; break;
+		case Game::Difficulty::Hard:   iterations = 50000; break;
+		case Game::Difficulty::Expert: iterations = 100000; break;
 		default:
 			break;
 		}
 	}
 public slots:
-	void doWork() {
-		int threadsCount = QThread::idealThreadCount();
-		if (threadsCount < 1)
-			threadsCount = 4;
-		int iterationsPerThread = iterations / threadsCount;
-
-		QList<QFuture<QMap<int, int>>> futures;
-		for (int i = 0; i < threadsCount; i++)
-		{
-			futures.append(QtConcurrent::run([this, iterationsPerThread]() {
-				Tree t(m_state, m_aiColor, m_graph);
-				t.mcts(iterationsPerThread);
-				return t.getMovesEval();
-				}));
-		}
-
-		QMap<int, int> results;
-		for (auto future : futures) {
-			QMap<int, int> threadResult = future.result(); 
-			for (auto it = threadResult.cbegin(); it != threadResult.cend(); ++it) {
-				results[it.key()] += it.value(); 
-			}
-		}
-
-		int bestMoveId = -1, maxVis = -1;
-		for (auto it = results.cbegin(); it != results.cend(); ++it) {
-			if (it.value() > maxVis) {
-				maxVis = it.value();
-				bestMoveId = it.key();
-			}
-		}
-
-		emit resultReady(bestMoveId, false);
-	}
+	void doWork();
 
 signals:
 	void resultReady(const int id, bool isPlayer);
 
 private:
-	QList<QList<int>> m_graph;
-	const Game::Color m_aiColor;
-	QMap<int, Game::Color> m_state;
 	int iterations = 0;
+	const Game::Color m_aiColor;
+	QList<QList<uint8_t>> m_graph;
+	QMap<uint8_t, Game::Color> m_state;
 };

@@ -7,13 +7,13 @@ class Game : public QObject {
 	Q_OBJECT
 	QML_UNCREATABLE("Enum class is uncreatable");
 public:
-	enum Difficulty {
+	enum class Difficulty: uint8_t {
 		Easy,
 		Medium,
 		Hard,
 		Expert
 	};
-	enum Color {
+	enum class Color: uint8_t {
 		Red,
 		Blue,
 		Empty
