@@ -14,19 +14,18 @@ class Tree : public QObject
 public:
 	// Root tree
 	Tree(
-		QMap<uint8_t, Game::Color> state,
+		const QHash<uint8_t, Game::Color>& state,
 		Game::Color aiColor,
-		QList<QList<uint8_t>>& graph
+		const QList<QList<uint8_t>>& graph
 	)
 		: m_graph(graph), aiColor(aiColor)
 	{
-		m_root = new Node(*this, state, Players::AI, nullptr, -1); // cP is always AI
+		m_root = new Node(this, state, Players::AI, nullptr, -1); // cP is always AI
 	}
 	~Tree() { delete m_root; }
 
 	uint8_t mcts(int iterations);
-	static bool haveWon(Game::Color who, QMap<uint8_t, Game::Color>& state, const QList<QList<uint8_t>>& graph);
-	QMap<uint8_t, int> getMovesEval();
+	static bool haveWon(Game::Color who, QHash<uint8_t, Game::Color>& state, const QList<QList<uint8_t>>& graph);
 
 private:
 	enum Players {
@@ -37,8 +36,8 @@ private:
 	struct Node
 	{
 		Node(
-			Tree& parentTree,
-			const QMap<uint8_t, Game::Color> state,
+			Tree* parentTree,
+			const QHash<uint8_t, Game::Color> state,
 			Players currentPlayer,
 			Node* parentNode, 
 			uint8_t idOfChosenHex
@@ -54,9 +53,9 @@ private:
 			qDeleteAll(children);
 		}
 
-		Tree& tree;
+		Tree* tree;
 
-		QMap<uint8_t, Game::Color> m_state; // Current board state
+		QHash<uint8_t, Game::Color> m_state; // Current board state
 		QList<uint8_t> m_legalMoves;
 		const Players m_currentPlayer;
 		const uint8_t chosenHexId;
@@ -73,7 +72,7 @@ private:
 
 	const Game::Color aiColor;
 	Node* m_root;
-	QList<QList<uint8_t>>& m_graph;
+	const QList<QList<uint8_t>>& m_graph;
 
 	Game::Color getColorOfPlayer(Players player);
 };
@@ -87,13 +86,13 @@ class TreeWorker : public QObject
 
 public:
 	TreeWorker(
-		QMap<uint8_t, Game::Color> state,
+		QHash<uint8_t, Game::Color> state,
 		const Game::Color aiColor,
-		QList<QList<uint8_t>> connections,
+		QList<QList<uint8_t>>& graph,
 		Game::Difficulty difficulty,
 		QObject* parent = nullptr
 	)
-		: QObject(parent), m_graph(connections), m_aiColor(aiColor), m_state(state)
+		: QObject(parent), m_graph(graph), m_aiColor(aiColor), m_state(state)
 	{
 		switch (difficulty)
 		{
@@ -114,6 +113,6 @@ signals:
 private:
 	int iterations = 0;
 	const Game::Color m_aiColor;
-	QList<QList<uint8_t>> m_graph;
-	QMap<uint8_t, Game::Color> m_state;
+	const QList<QList<uint8_t>>& m_graph;
+	const QHash<uint8_t, Game::Color> m_state;
 };

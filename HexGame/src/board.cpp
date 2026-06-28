@@ -21,13 +21,13 @@ void Board::createBoard()
 {
 	if (!m_hexagons.isEmpty())
 		return;
-	const uint8_t N = m_size * m_size;
+	const int N = m_size * m_size;
 
 	// Initialize Hexagons
-	for (uint8_t i = 0; i < N; i++)
+	for (int i = 0; i < N; i++)
 		m_hexagons.append(new Hexagon(i, this));
 
-	QList<QPair<uint8_t, uint8_t>> potentialNeighs = {
+	QList<QPair<int, int>> potentialNeighs = {
 		{-1,0},
 		{-1,1},
 		{0,-1},
@@ -37,9 +37,9 @@ void Board::createBoard()
 	};
 	m_graph = QList<QList<uint8_t>>(N, QList<uint8_t>(0));
 	// Populate m_graph with ids of connected hexagons
-	for (uint8_t i = 0; i < N; i++)
+	for (int i = 0; i < N; i++)
 	{
-		uint8_t y = i / m_size, x = i % m_size;
+		int y = i / m_size, x = i % m_size;
 		for (auto [diffY, diffX] : potentialNeighs)
 			if (y + diffY >= 0 && y + diffY < N && x + diffX >= 0 && x + diffX < N)
 				m_graph[i].append((y + diffY) * m_size + x + diffX);
@@ -49,8 +49,8 @@ void Board::createBoard()
 		startThread();
 }
 
-QMap<uint8_t,Game::Color> Board::getLocalHexagons() {
-	QMap<uint8_t, Game::Color> lwh;
+QHash<uint8_t,Game::Color> Board::getLocalHexagons() {
+	QHash<uint8_t, Game::Color> lwh;
 	for (Hexagon* h : m_hexagons)
 		lwh[h->id] = h->getColor();
 
@@ -97,7 +97,7 @@ Q_INVOKABLE void Board::pick(const uint8_t id, bool isPlayer)
 
 // Getters and setters
 
-void Board::setSize(uint8_t s)
+void Board::setSize(int s)
 {
 	if (s == m_size) return;
 	m_size = s;
@@ -133,12 +133,12 @@ void Board::setAiDifficulty(Game::Difficulty d)
 	emit aiDifficultyChanged();
 }
 
-uint8_t Board::getSize()
+int Board::getSize()
 {
 	return m_size;
 }
 
-uint8_t Board::getRound()
+int Board::getRound()
 {
 	return m_round;
 }

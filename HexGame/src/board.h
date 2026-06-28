@@ -9,8 +9,8 @@
 class Board : public QObject
 {
 	Q_OBJECT
-		Q_PROPERTY(uint8_t size READ getSize WRITE setSize NOTIFY sizeChanged)
-		Q_PROPERTY(uint8_t round READ getRound NOTIFY roundChanged)
+		Q_PROPERTY(int size READ getSize WRITE setSize NOTIFY sizeChanged)
+		Q_PROPERTY(int round READ getRound NOTIFY roundChanged)
 		Q_PROPERTY(Game::Color currentPlayer READ getCurrentPlayer WRITE setCurrentPlayer NOTIFY currentPlayerChanged)
 		Q_PROPERTY(Game::Color playersColor READ getPlayersColor WRITE setPlayersColor NOTIFY playersColorChanged)
 		Q_PROPERTY(Game::Color whoStarts READ getWhoStarts WRITE setWhoStarts NOTIFY whoStartsChanged)
@@ -24,13 +24,13 @@ public:
 	Q_INVOKABLE void createBoard();
 	Q_INVOKABLE void pick(const uint8_t id, bool isPlayer);
 
-	void setSize(uint8_t s);
+	void setSize(int s);
 	void setCurrentPlayer(Game::Color cp);
 	void setPlayersColor(Game::Color pc);
 	void setWhoStarts(Game::Color ws);
 	void setAiDifficulty(Game::Difficulty d);
-	uint8_t getSize();
-	uint8_t getRound();
+	int getSize();
+	int getRound();
 	Game::Color getCurrentPlayer();
 	Game::Color getPlayersColor();
 	Game::Color getWhoStarts();
@@ -46,8 +46,8 @@ signals:
 	void hexagonsChanged();
 
 private:
-	uint8_t m_size;
-	uint8_t m_round;
+	int m_size;
+	int m_round;
 	bool m_aiThinking = false;
 	Game::Color m_currentPlayer;
 	Game::Color m_playersColor;
@@ -56,6 +56,6 @@ private:
 	QList<Hexagon*> m_hexagons; // Hexagons row [i % size], col[i - i % size]
 	QList<QList<uint8_t>> m_graph; // hexagon connections
 
-	QMap<uint8_t, Game::Color> getLocalHexagons();
+	QHash<uint8_t, Game::Color> getLocalHexagons();
 	void startThread();
 };

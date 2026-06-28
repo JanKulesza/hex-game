@@ -7,24 +7,13 @@
 static std::random_device rd;
 static std::mt19937 g(rd());
 
-static int threadsCount = QThread::idealThreadCount() < 1 ? 4 : QThread::idealThreadCount();
-
 Game::Color Tree::getColorOfPlayer(Players player)
 {
 	return player == Players::AI ? aiColor :
 		aiColor == Game::Color::Blue ? Game::Color::Red : Game::Color::Blue;
 }
 
-QMap<uint8_t, int> Tree::getMovesEval()
-{
-	QMap<uint8_t, int> eval;
-	for (Node* c : m_root->children) {
-		eval[c->chosenHexId] = c->m_vis;
-	}
-	return eval;
-}
-
-bool Tree::haveWon(Game::Color who, QMap<uint8_t, Game::Color>& state, const QList<QList<uint8_t>>& graph)
+bool Tree::haveWon(Game::Color who, QHash<uint8_t, Game::Color>& state, const QList<QList<uint8_t>>& graph)
 {
 	uint8_t size = qSqrt(graph.size());
 	QList<uint8_t> stack;
@@ -71,14 +60,14 @@ bool Tree::Node::runSimulation() // Check if current player in node have won sim
 	std::shuffle(s_legalMoves.begin(), s_legalMoves.end(), g);
 
 	// Choose colors randomly
-	Game::Color nextMove = tree.getColorOfPlayer(m_currentPlayer);
+	Game::Color nextMove = tree->getColorOfPlayer(m_currentPlayer);
 	for (int i = 0; i < s_legalMoves.length(); i++)
 	{
 		s_state[s_legalMoves[i]] = nextMove;
 		nextMove = nextMove == Game::Color::Blue ? Game::Color::Red : Game::Color::Blue;
 	}
 
-	return haveWon(tree.getColorOfPlayer(Tree::Players::AI), s_state, tree.m_graph);
+	return haveWon(tree->getColorOfPlayer(Tree::Players::AI), s_state, tree->m_graph);
 
 }
 
@@ -91,16 +80,15 @@ uint8_t Tree::mcts(int iterations)
 		uint8_t selectedHexId;
 		bool isTerminalNode = false;
 
-		if (curNode->m_legalMoves.size() > 0) {
-			std::uniform_int_distribution<int> dist(0, curNode->m_legalMoves.size() - 1);
-			uint8_t indexToRemove = dist(g);
-			selectedHexId = curNode->m_legalMoves[indexToRemove];
-			curNode->m_legalMoves.takeAt(indexToRemove);
+		if (curNode->m_legalMoves.size() > 0) { // Leaf selection
+			selectedHexId = curNode->m_legalMoves[0];
+			curNode->m_legalMoves.pop_front();
 		}
-		else if (curNode->children.size() > 0) {
+		else if (curNode->children.size() > 0) { // Going down the tree
 			double maxUCT = -1;
 			Node* nextNode = nullptr;
-			for (auto c : curNode->children) {
+			for (auto it = curNode->children.cbegin(), end = curNode->children.cend(); it != end; ++it) {
+				auto c = it.value();
 				if (c->m_vis > 0.0)
 					c->m_uct = (c->m_win / c->m_vis) + 1.41 * qSqrt(qLn(curNode->m_vis) / c->m_vis);
 
@@ -116,7 +104,7 @@ uint8_t Tree::mcts(int iterations)
 			curNode = nextNode;
 			continue;
 		}
-		else
+		else // If no legal moves and no children, then leaf node is terminal
 			isTerminalNode = true;
 
 		// Expansion
@@ -128,7 +116,7 @@ uint8_t Tree::mcts(int iterations)
 				curNode,
 				selectedHexId
 			);
-			expandedNode->m_state[selectedHexId] = curNode->tree.getColorOfPlayer(curNode->m_currentPlayer);
+			expandedNode->m_state[selectedHexId] = curNode->tree->getColorOfPlayer(curNode->m_currentPlayer);
 			curNode->children[selectedHexId] = expandedNode;
 			curNode = expandedNode;
 
