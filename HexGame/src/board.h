@@ -16,6 +16,7 @@ class Board : public QObject
 		Q_PROPERTY(Game::Color whoStarts READ getWhoStarts WRITE setWhoStarts NOTIFY whoStartsChanged)
 		Q_PROPERTY(Game::Difficulty aiDifficulty READ getAiDifficulty WRITE setAiDifficulty NOTIFY aiDifficultyChanged)
 		Q_PROPERTY(QList<Hexagon*> hexagons READ getHexagons NOTIFY hexagonsChanged)
+		Q_PROPERTY(QString notification READ getNotification NOTIFY notificationChanged)
 
 public:
 	Board() {}
@@ -36,6 +37,8 @@ public:
 	Game::Color getWhoStarts();
 	Game::Difficulty getAiDifficulty();
 	QList<Hexagon*> getHexagons();
+	QString getNotification();
+
 signals:
 	void sizeChanged();
 	void roundChanged();
@@ -44,17 +47,20 @@ signals:
 	void aiDifficultyChanged();
 	void whoStartsChanged();
 	void hexagonsChanged();
+	void notificationChanged();
 
 private:
 	int m_size;
 	int m_round;
 	bool m_aiThinking = false;
+	bool m_gameTerminated = false;
 	Game::Color m_currentPlayer;
 	Game::Color m_playersColor;
 	Game::Color m_whoStarts;
 	Game::Difficulty m_aiDifficulty;
 	QList<Hexagon*> m_hexagons; // Hexagons row [i % size], col[i - i % size]
 	QList<QList<uint8_t>> m_graph; // hexagon connections
+	QString m_notification = "";
 
 	QHash<uint8_t, Game::Color> getLocalHexagons();
 	void startThread();

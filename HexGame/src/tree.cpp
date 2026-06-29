@@ -2,7 +2,7 @@
 #include <random>
 
 //	TO DO: DSU
-//	TO DO: optimize storage allocation eg. int -> uint8_t
+//  TO DO: BU_UCT
 
 static std::random_device rd;
 static std::mt19937 g(rd());

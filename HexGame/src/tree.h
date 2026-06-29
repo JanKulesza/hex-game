@@ -28,7 +28,7 @@ public:
 	static bool haveWon(Game::Color who, QHash<uint8_t, Game::Color>& state, const QList<QList<uint8_t>>& graph);
 
 private:
-	enum Players {
+	enum class Players: uint8_t {
 		AI,
 		Human
 	};
@@ -96,10 +96,10 @@ public:
 	{
 		switch (difficulty)
 		{
-		case Game::Difficulty::Easy:   iterations = 10000; break;
-		case Game::Difficulty::Medium: iterations = 50000; break;
-		case Game::Difficulty::Hard:   iterations = 100000; break;
-		case Game::Difficulty::Expert: iterations = 200000; break;
+		case Game::Difficulty::Easy:   iterations = 50000; break;
+		case Game::Difficulty::Medium: iterations = 100000; break;
+		case Game::Difficulty::Hard:   iterations = 200000; break;
+		case Game::Difficulty::Expert: iterations = 400000; break;
 		default:
 			break;
 		}

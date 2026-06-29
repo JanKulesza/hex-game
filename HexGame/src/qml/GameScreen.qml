@@ -134,7 +134,14 @@ Item {
 				}
 			}
 		}
-		
+		Text {
+			text: Board.notification
+			font.pixelSize: 32
+			color: "#80ffffff"
+			horizontalAlignment: Text.AlignHCenter
+			Layout.fillWidth: true
+			Layout.margins: 16
+		}
 		SecondaryBtn {
 			icon: "🚩"
 			text: "Resign"

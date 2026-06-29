@@ -10,6 +10,7 @@ void Board::resetGame()
 	m_round = 1;
 	m_currentPlayer = m_playersColor = m_whoStarts = Game::Color::Blue;
 	m_aiDifficulty = Game::Difficulty::Medium;
+	m_gameTerminated = false;
 	emit sizeChanged();
 	emit roundChanged();
 	emit playersColorChanged();
@@ -49,7 +50,7 @@ void Board::createBoard()
 		startThread();
 }
 
-QHash<uint8_t,Game::Color> Board::getLocalHexagons() {
+QHash<uint8_t, Game::Color> Board::getLocalHexagons() {
 	QHash<uint8_t, Game::Color> lwh;
 	for (Hexagon* h : m_hexagons)
 		lwh[h->id] = h->getColor();
@@ -81,7 +82,7 @@ Q_INVOKABLE void Board::pick(const uint8_t id, bool isPlayer)
 	if (!isPlayer)
 		m_aiThinking = false;
 	// Validate move
-	if (m_hexagons[id]->getColor() != Game::Color::Empty || isPlayer && m_currentPlayer != m_playersColor || m_aiThinking)
+	if (m_hexagons[id]->getColor() != Game::Color::Empty || isPlayer && m_currentPlayer != m_playersColor || m_aiThinking || m_gameTerminated)
 		return;
 	// Make move
 	m_round++;
@@ -91,8 +92,24 @@ Q_INVOKABLE void Board::pick(const uint8_t id, bool isPlayer)
 	emit currentPlayerChanged();
 
 	// If isPlayer make AI move
-	if (isPlayer)
-		startThread();
+	if (isPlayer) {
+		auto state = getLocalHexagons();
+		if (Tree::haveWon(m_playersColor, state, m_graph)) {
+			m_notification = "The Player has won!";
+			m_gameTerminated = true;
+			emit notificationChanged();
+		}
+		else
+			startThread();
+		return;
+	}
+
+	auto state = getLocalHexagons();
+	if (Tree::haveWon(m_playersColor == Game::Color::Red ? Game::Color::Blue : Game::Color::Red, state, m_graph)) {
+		m_notification = "The AI has won!";
+		m_gameTerminated = true;
+		emit notificationChanged();
+	}
 }
 
 // Getters and setters
@@ -166,4 +183,9 @@ Game::Difficulty Board::getAiDifficulty()
 QList<Hexagon*> Board::getHexagons()
 {
 	return m_hexagons;
+}
+
+QString Board::getNotification()
+{
+	return m_notification;
 }
