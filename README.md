@@ -8,7 +8,7 @@ A desktop implementation of the abstract strategy board game **Hex**, featuring 
 
 Hex is a two-player connection game played on an N×N rhombus-shaped board of hexagonal cells. One player connects left-to-right, the other top-to-bottom. The first player to form an unbroken chain of their color across the board wins. Unlike chess, Hex has no draws.
 
----
+<img width="257" height="425" alt="image" src="https://github.com/user-attachments/assets/352a7b34-bb6f-4c38-bd4a-83a4a3a87aa1" />
 
 ## Features
 
